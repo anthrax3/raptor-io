@@ -4,3 +4,4 @@ end
 
 require 'raptor-io/protocol/error'
 require 'raptor-io/protocol/http'
+require 'raptor-io/protocol/smb'
