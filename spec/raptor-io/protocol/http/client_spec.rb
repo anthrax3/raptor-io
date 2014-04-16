@@ -547,9 +547,9 @@ describe RaptorIO::Protocol::HTTP::Client do
     context 'when a request fails' do
       context 'in asynchronous mode' do
         context 'due to a closed port' do
-          it 'passes the callback an empty response' do
-            url = 'http://localhost:9696969'
+          let(:url) { 'http://127.0.0.1:96' }
 
+          it 'passes the callback an empty response' do
             response = nil
             client.get(url){ |r| response = r }
             client.run
@@ -562,8 +562,6 @@ describe RaptorIO::Protocol::HTTP::Client do
           end
 
           it 'assigns RaptorIO::Socket::Error::ConnectionError to #error' do
-            url = 'http://localhost:9696969'
-
             response = nil
             client.get(url){ |r| response = r }
             client.run
@@ -573,7 +571,7 @@ describe RaptorIO::Protocol::HTTP::Client do
 
         end
 
-        context 'due to an invalid IP address' do
+        context 'due to a non-existent IP address' do
           it 'passes the callback an empty response', speed: 'slow' do
             url = 'http://10.11.12.13'
 
@@ -599,7 +597,7 @@ describe RaptorIO::Protocol::HTTP::Client do
           end
         end
 
-        context 'due to an invalid hostname' do
+        context 'due to a non-existent hostname' do
           it 'passes the callback an empty response' do
             url = 'http://stuffhereblahblahblah'
 
@@ -630,7 +628,7 @@ describe RaptorIO::Protocol::HTTP::Client do
         context 'due to a closed port' do
           it 'raises RaptorIO::Socket::Error::ConnectionRefused' do
             expect {
-              client.get('http://localhost:858589', mode: :sync)
+              client.get('http://127.0.0.1:96', mode: :sync)
             }.to raise_error RaptorIO::Socket::Error::ConnectionRefused
           end
         end
