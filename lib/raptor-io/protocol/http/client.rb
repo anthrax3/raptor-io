@@ -364,9 +364,7 @@ class Client
           @sockets[:writes] << fresh_socket
           return write( fresh_socket, false )
         else
-          error = Protocol::Error::BrokenPipe.new( e.to_s )
-          error.set_backtrace( e.backtrace )
-          handle_error( request, error, socket )
+          handle_error( request, e, socket )
           return
         end
       end
