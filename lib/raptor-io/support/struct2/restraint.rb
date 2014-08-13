@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
-# Rex::Struct2
-module Rex
+# RaptorIO::Support::Struct2
+module RaptorIO::Support
 module Struct2
 
 class Restraint
@@ -49,6 +49,6 @@ class Restraint
 
 end
 
-# end Rex::Struct2
+# end RaptorIO::Support::Struct2
 end
 end

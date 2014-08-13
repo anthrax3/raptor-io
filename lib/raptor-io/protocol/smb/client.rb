@@ -1,30 +1,30 @@
 # -*- coding: binary -*-
-module Rex
-module Proto
+module RaptorIO
+module Protocol
 module SMB
 class Client
 
-require 'rex/text'
-require 'rex/struct2'
-require 'rex/proto/smb/constants'
-require 'rex/proto/smb/exceptions'
-require 'rex/proto/smb/evasions'
-require 'rex/proto/smb/utils'
-require 'rex/proto/smb/crypt'
-require 'rex/proto/ntlm/crypt'
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/utils'
+require 'raptor-io/text'
+require 'raptor-io/struct2'
+require 'raptor-io/protocol/smb/constants'
+require 'raptor-io/protocol/smb/exceptions'
+require 'raptor-io/protocol/smb/evasions'
+require 'raptor-io/protocol/smb/utils'
+require 'raptor-io/protocol/smb/crypt'
+require 'raptor-io/protocol/ntlm/crypt'
+require 'raptor-io/protocol/ntlm/constants'
+require 'raptor-io/protocol/ntlm/utils'
 
 
 # Some short-hand class aliases
-CONST = Rex::Proto::SMB::Constants
-CRYPT = Rex::Proto::SMB::Crypt
-UTILS = Rex::Proto::SMB::Utils
-XCEPT = Rex::Proto::SMB::Exceptions
-EVADE = Rex::Proto::SMB::Evasions
-NTLM_CRYPT = Rex::Proto::NTLM::Crypt
-NTLM_CONST = Rex::Proto::NTLM::Constants
-NTLM_UTILS = Rex::Proto::NTLM::Utils
+CONST = RaptorIO::Protocol::SMB::Constants
+CRYPT = RaptorIO::Protocol::SMB::Crypt
+UTILS = RaptorIO::Protocol::SMB::Utils
+XCEPT = RaptorIO::Protocol::SMB::Exceptions
+EVADE = RaptorIO::Protocol::SMB::Evasions
+NTLM_CRYPT = RaptorIO::Protocol::NTLM::Crypt
+NTLM_CONST = RaptorIO::Protocol::NTLM::Constants
+NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
 
   def initialize(socket)
     self.socket = socket
@@ -166,14 +166,14 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
   # Scan the packet receive cache for a matching response
   def smb_recv_cache_find_match(expected_type)
-    
+
     clean = []
     found = nil
 
     @smb_recv_cache.each do |cent|
       pkt, data, tstamp = cent
 
-      # Return matching packets and mark for removal 
+      # Return matching packets and mark for removal
       if pkt['Payload']['SMB'].v['Command'] == expected_type
         found = [pkt,data]
         clean << cent
@@ -828,7 +828,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
 
     if (name == nil)
-      name = Rex::Text.rand_text_alphanumeric(16)
+      name = RaptorIO::Support::Text.rand_text_alphanumeric(16)
     end
 
     blob = NTLM_UTILS.make_ntlmssp_secblob_init(domain, name, ntlmssp_flags)
@@ -1014,7 +1014,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   def session_setup_with_ntlmssp_temp(domain = '', name = nil, do_recv = true)
 
     if (name == nil)
-      name = Rex::Text.rand_text_alphanumeric(16)
+      name = RaptorIO::Support::Text.rand_text_alphanumeric(16)
     end
 
     blob = NTLM_UTILS.make_ntlmssp_secblob_init(domain, name)
@@ -1957,7 +1957,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       resp = find_next(last_search_id, last_offset, last_filename)
 
       # Flip bit so response params will parse correctly
-      search_next = 1 
+      search_next = 1
     end
 
     files
@@ -1972,7 +1972,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       260,                # Level of interest
       resume_key,         # Resume key from previous (Last name offset)
       6,                  # Close search if end of search
-    ].pack('vvvVv') + 
+    ].pack('vvvVv') +
     last_filename.to_s +  # Last filename returned from find_first or find_next
     "\x00"                # Terminate the file name
 
@@ -2004,8 +2004,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
         begin
           search_path = "#{current_path}#{fname}\\"
           file_search(search_path, regex, depth).each {|fn| files << fn }
-        rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-          
+        rescue RaptorIO::Protocol::SMB::Exceptions::ErrorCode => e
+
           # Ignore common errors related to permissions and non-files
           if %W{
             STATUS_ACCESS_DENIED

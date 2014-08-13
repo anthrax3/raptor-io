@@ -1,12 +1,12 @@
 # -*- coding: binary -*-
 
-# Rex::Struct2
-module Rex
+# RaptorIO::Support::Struct2
+module RaptorIO::Support
 module Struct2
 
 class CStructTemplate
 
-  require 'rex/struct2/c_struct'
+  require 'raptor-io/support/struct2/c_struct'
 
   attr_reader  :template, :template_create_restraints, :template_apply_restraint
   attr_writer  :template, :template_create_restraints, :template_apply_restraint
@@ -28,12 +28,12 @@ class CStructTemplate
   end
 
   def make_struct
-    Rex::Struct2::CStruct.new(*self.template).
+    RaptorIO::Support::Struct2::CStruct.new(*self.template).
       create_restraints(*self.template_create_restraints).
       apply_restraint(*self.template_apply_restraint)
   end
 end
 
-# end Rex::Struct2
+# end RaptorIO::Support::Struct2
 end
 end

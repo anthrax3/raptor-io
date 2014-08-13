@@ -1,26 +1,26 @@
 # -*- coding: binary -*-
-module Rex
-module Proto
+module RaptorIO
+module Protocol
 module SMB
 class SimpleClient
 
-require 'rex/text'
-require 'rex/struct2'
-require 'rex/proto/smb/constants'
-require 'rex/proto/smb/exceptions'
-require 'rex/proto/smb/evasions'
-require 'rex/proto/smb/crypt'
-require 'rex/proto/smb/utils'
-require 'rex/proto/smb/client'
-require 'rex/proto/smb/simpleclient/open_file'
-require 'rex/proto/smb/simpleclient/open_pipe'
+require 'raptor-io/support/text'
+require 'raptor-io/support/struct2'
+require 'raptor-io/protocol/smb/constants'
+require 'raptor-io/protocol/smb/exceptions'
+require 'raptor-io/protocol/smb/evasions'
+require 'raptor-io/protocol/smb/crypt'
+require 'raptor-io/protocol/smb/utils'
+require 'raptor-io/protocol/smb/client'
+require 'raptor-io/protocol/smb/simpleclient/open_file'
+require 'raptor-io/protocol/smb/simpleclient/open_pipe'
 
 # Some short-hand class aliases
-CONST = Rex::Proto::SMB::Constants
-CRYPT = Rex::Proto::SMB::Crypt
-UTILS = Rex::Proto::SMB::Utils
-XCEPT = Rex::Proto::SMB::Exceptions
-EVADE = Rex::Proto::SMB::Evasions
+CONST = RaptorIO::Protocol::SMB::Constants
+CRYPT = RaptorIO::Protocol::SMB::Crypt
+UTILS = RaptorIO::Protocol::SMB::Utils
+XCEPT = RaptorIO::Protocol::SMB::Exceptions
+EVADE = RaptorIO::Protocol::SMB::Evasions
 
 # Public accessors
 attr_accessor :last_error
@@ -32,7 +32,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   def initialize(socket, direct = false)
     self.socket = socket
     self.direct = direct
-    self.client = Rex::Proto::SMB::Client.new(socket)
+    self.client = RaptorIO::Protocol::SMB::Client.new(socket)
     self.shares = { }
   end
 

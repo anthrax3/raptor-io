@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
-module Rex
-module Proto
+module RaptorIO
+module Protocol
 module SMB
 class Evasions
 
-require 'rex/text'
+require 'raptor-io/support/text'
 
 EVASION_NONE  = 0
 EVASION_LOW   = 1
@@ -24,11 +24,11 @@ EVASION_MAX   = 3
 
     case level.to_i
       when EVASION_LOW
-        Rex::Text.rand_text(32)
+        RaptorIO::Support::Text.rand_text(32)
       when EVASION_HIGH
-        Rex::Text.rand_text( rand(max_size - min_size) + min_size )
+        RaptorIO::Support::Text.rand_text( rand(max_size - min_size) + min_size )
       when EVASION_MAX
-        Rex::Text.rand_text( rand(max_size) )
+        RaptorIO::Support::Text.rand_text( rand(max_size) )
       else EVASION_NONE
         return ''
     end
@@ -52,9 +52,9 @@ EVASION_MAX   = 3
       when EVASION_LOW
         return ('\\' * (256 - rand(64)) + 'PIPE\\')
       when EVASION_HIGH
-        return Rex::Text.rand_text(512 - rand(128))
+        return RaptorIO::Support::Text.rand_text(512 - rand(128))
       when EVASION_MAX
-        return Rex::Text.rand_text(1024 - rand(256))
+        return RaptorIO::Support::Text.rand_text(1024 - rand(256))
       else
         return '\\PIPE\\'
     end

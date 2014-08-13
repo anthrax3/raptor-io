@@ -1,8 +1,8 @@
 # -*- coding: binary -*-
-require 'rex/text'
+require 'raptor-io/support/text'
 
-module Rex
-module Proto
+module RaptorIO
+module Protocol
 module SMB
 class Crypt
 
@@ -17,7 +17,7 @@ class Crypt
   # Return a signed SMB packet
   def self.sign_smb_packet(mackey, sequence_counter, data)
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    seq = Rex::Text::pack_int64le(sequence_counter)
+    seq = RaptorIO::Support::Text::pack_int64le(sequence_counter)
     netbios_hdr = data.slice!(0,4)
     data[14,8] = seq
     signature = OpenSSL::Digest::MD5.digest(mackey + data)[0,8]

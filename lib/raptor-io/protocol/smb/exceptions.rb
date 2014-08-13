@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
-module Rex
-module Proto
+module RaptorIO
+module Protocol
 module SMB
 module Exceptions
 

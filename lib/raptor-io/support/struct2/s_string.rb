@@ -1,14 +1,14 @@
 # -*- coding: binary -*-
 
-# Rex::Struct2
-module Rex
+# RaptorIO::Support::Struct2
+module RaptorIO::Support
 module Struct2
 
 class SString
 
-  require 'rex/struct2/element'
-  require 'rex/struct2/constant'
-  include Rex::Struct2::Element
+  require 'raptor-io/support/struct2/element'
+  require 'raptor-io/support/struct2/constant'
+  include RaptorIO::Support::Struct2::Element
 
   attr_reader  :size, :default, :pad
   attr_writer  :default, :pad
@@ -24,8 +24,8 @@ class SString
     if !newsize
       self.restraint = nil
     else
-      res = Rex::Struct2::Constant.new(newsize)
-      self.restraint = Rex::Struct2::Restraint.new(res, res, false)
+      res = RaptorIO::Support::Struct2::Constant.new(newsize)
+      self.restraint = RaptorIO::Support::Struct2::Restraint.new(res, res, false)
     end
   end
 
@@ -67,6 +67,6 @@ class SString
   end
 end
 
-# end Rex::Struct2
+# end RaptorIO::Support::Struct2
 end
 end

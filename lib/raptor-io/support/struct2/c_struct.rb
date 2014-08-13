@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
 
-# Rex::Struct2
-module Rex
+# RaptorIO::Support::Struct2
+module RaptorIO::Support
 module Struct2
 
-require 'rex/struct2/s_struct'
+require 'raptor-io/support/struct2/s_struct'
 
 class CStruct_Values
 
@@ -37,31 +37,31 @@ end
 
 class CStruct < SStruct
 
-  require 'rex/struct2/element'
-  require 'rex/struct2/generic'
-  require 'rex/struct2/s_string'
-  require 'rex/struct2/c_struct_template'
-  require 'rex/struct2/restraint'
+  require 'raptor-io/support/struct2/element'
+  require 'raptor-io/support/struct2/generic'
+  require 'raptor-io/support/struct2/s_string'
+  require 'raptor-io/support/struct2/c_struct_template'
+  require 'raptor-io/support/struct2/restraint'
 
-  include Rex::Struct2::Element
+  include RaptorIO::Support::Struct2::Element
 
   attr_reader  :v
 
   @@dt_table = {
-    'int8'      => proc { |*a| Rex::Struct2::Generic.new('C',  true, *a) },
-    'uint8'     => proc { |*a| Rex::Struct2::Generic.new('C', false, *a) },
-    'int16v'    => proc { |*a| Rex::Struct2::Generic.new('v',  true, *a) },
-    'uint16v'   => proc { |*a| Rex::Struct2::Generic.new('v', false, *a) },
-    'int32v'    => proc { |*a| Rex::Struct2::Generic.new('V',  true, *a) },
-    'uint32v'   => proc { |*a| Rex::Struct2::Generic.new('V', false, *a) },
-    'int64v'    => proc { |*a| Rex::Struct2::Generic.new('q',  true, *a) },
-    'uint64v'   => proc { |*a| Rex::Struct2::Generic.new('Q', false, *a) },
-    'int16n'    => proc { |*a| Rex::Struct2::Generic.new('n',  true, *a) },
-    'uint16n'   => proc { |*a| Rex::Struct2::Generic.new('n', false, *a) },
-    'int32n'    => proc { |*a| Rex::Struct2::Generic.new('N',  true, *a) },
-    'uint32n'   => proc { |*a| Rex::Struct2::Generic.new('N', false, *a) },
-    'string'    => proc { |*a| Rex::Struct2::SString.new(*a) },
-    'sstruct'   => proc { |*a| Rex::Struct2::SStruct.new(*a) },
+    'int8'      => proc { |*a| RaptorIO::Support::Struct2::Generic.new('C',  true, *a) },
+    'uint8'     => proc { |*a| RaptorIO::Support::Struct2::Generic.new('C', false, *a) },
+    'int16v'    => proc { |*a| RaptorIO::Support::Struct2::Generic.new('v',  true, *a) },
+    'uint16v'   => proc { |*a| RaptorIO::Support::Struct2::Generic.new('v', false, *a) },
+    'int32v'    => proc { |*a| RaptorIO::Support::Struct2::Generic.new('V',  true, *a) },
+    'uint32v'   => proc { |*a| RaptorIO::Support::Struct2::Generic.new('V', false, *a) },
+    'int64v'    => proc { |*a| RaptorIO::Support::Struct2::Generic.new('q',  true, *a) },
+    'uint64v'   => proc { |*a| RaptorIO::Support::Struct2::Generic.new('Q', false, *a) },
+    'int16n'    => proc { |*a| RaptorIO::Support::Struct2::Generic.new('n',  true, *a) },
+    'uint16n'   => proc { |*a| RaptorIO::Support::Struct2::Generic.new('n', false, *a) },
+    'int32n'    => proc { |*a| RaptorIO::Support::Struct2::Generic.new('N',  true, *a) },
+    'uint32n'   => proc { |*a| RaptorIO::Support::Struct2::Generic.new('N', false, *a) },
+    'string'    => proc { |*a| RaptorIO::Support::Struct2::SString.new(*a) },
+    'sstruct'   => proc { |*a| RaptorIO::Support::Struct2::SStruct.new(*a) },
     'object'    => proc { |o| o },
     'template'  => proc { |o| o.make_struct },
   }
@@ -78,7 +78,7 @@ class CStruct < SStruct
   def initialize(*dts)
     super()
     @name_table = [ ]
-    @v = Rex::Struct2::CStruct_Values.new(self)
+    @v = RaptorIO::Support::Struct2::CStruct_Values.new(self)
 
     return self.add_from_dt(*dts)
   end
@@ -135,7 +135,7 @@ class CStruct < SStruct
       r[2] = self[r[2]] if r[2]
 
       # build and apply the restraint
-      self.apply_restraint(r[0], Rex::Struct2::Restraint.new(*r[1 .. -1]))
+      self.apply_restraint(r[0], RaptorIO::Support::Struct2::Restraint.new(*r[1 .. -1]))
     }
 
     return self
@@ -176,6 +176,6 @@ class CStruct < SStruct
   end
 end
 
-# end Rex::Struct2
+# end RaptorIO::Support::Struct2
 end
 end

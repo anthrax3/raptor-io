@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
-# Rex::Struct2
-module Rex
+# RaptorIO::Support::Struct2
+module RaptorIO::Support
 module Struct2
 
 # this is a "constant" element.  It's not actually constant, you can set it
@@ -12,8 +12,8 @@ module Struct2
 
 class Constant
 
-  require 'rex/struct2/element'
-  include Rex::Struct2::Element
+  require 'raptor-io/support/struct2/element'
+  include RaptorIO::Support::Struct2::Element
 
   def initialize(value)
     self.value = value
@@ -21,6 +21,6 @@ class Constant
 
 end
 
-# end Rex::Struct2
+# end RaptorIO::Support::Struct2
 end
 end

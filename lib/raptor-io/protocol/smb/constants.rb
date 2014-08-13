@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
-module Rex
+module RaptorIO
 module Proto
 module SMB
 class Constants
 
-require 'rex/struct2'
+require 'raptor-io/support/struct2'
 
 # SMB Commands
 SMB_COM_CREATE_DIRECTORY           = 0x00
@@ -367,7 +367,7 @@ DIALECT['NTLM 0.12'] = DIALECT['LM1.2X002'] + [
 
 # Create a NetBIOS session packet template
 def self.make_nbs (template)
-  Rex::Struct2::CStructTemplate.new(
+  RaptorIO::Support::Struct2::CStructTemplate.new(
     [ 'uint8',    'Type',             0 ],
     [ 'uint8',    'Flags',            0 ],
     [ 'uint16n',  'PayloadLen',       0 ],
@@ -379,14 +379,14 @@ end
 
 
 # A raw NetBIOS session template
-NBRAW_HDR_PKT =  Rex::Struct2::CStructTemplate.new(
+NBRAW_HDR_PKT =  RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'string', 'Payload', nil, '']
 )
 NBRAW_PKT = self.make_nbs(NBRAW_HDR_PKT)
 
 
 # The SMB header template
-SMB_HDR = Rex::Struct2::CStructTemplate.new(
+SMB_HDR = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'uint32n', 'Magic',             0xff534d42 ],
   [ 'uint8',   'Command',           0 ],
   [ 'uint32v', 'ErrorClass',        0 ],
@@ -405,7 +405,7 @@ SMB_HDR = Rex::Struct2::CStructTemplate.new(
 
 
 # The SMB2 header template
-SMB2_HDR = Rex::Struct2::CStructTemplate.new(
+SMB2_HDR = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'uint32n', 'Magic',             0xfe534d42 ],
   [ 'uint16v', 'HeaderLen',         64 ],
   [ 'uint16v', 'Reserved0',         0 ],
@@ -435,7 +435,7 @@ SMB2_HDR = Rex::Struct2::CStructTemplate.new(
 )
 
 # A basic SMB template to read all responses
-SMB_BASE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_BASE_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'ByteCount',            0 ],
   [ 'string',  'Payload', nil,        '' ]
@@ -446,7 +446,7 @@ SMB_BASE_PKT = self.make_nbs(SMB_BASE_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation
-SMB_NEG_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NEG_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
 
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'ByteCount',            0 ],
@@ -458,7 +458,7 @@ SMB_NEG_PKT = self.make_nbs(SMB_NEG_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation responses (LANMAN)
-SMB_NEG_RES_LM_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NEG_RES_LM_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'Dialect',              0 ],
   [ 'uint16v', 'SecurityMode',         0 ],
@@ -481,7 +481,7 @@ SMB_NEG_RES_LM_PKT = self.make_nbs(SMB_NEG_RES_LM_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation responses (NTLM)
-SMB_NEG_RES_NT_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NEG_RES_NT_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'Dialect',              0 ],
   [ 'uint8',   'SecurityMode',         0 ],
@@ -504,7 +504,7 @@ SMB_NEG_RES_NT_PKT = self.make_nbs(SMB_NEG_RES_NT_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation responses (ERROR)
-SMB_NEG_RES_ERR_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NEG_RES_ERR_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'Dialect',              0 ],
   [ 'uint16v', 'ByteCount',            0 ]
@@ -513,7 +513,7 @@ SMB_NEG_RES_ERR_PKT = self.make_nbs(SMB_NEG_RES_ERR_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup responses (LANMAN/NTLMV1)
-SMB_SETUP_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_SETUP_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -528,7 +528,7 @@ SMB_SETUP_RES_PKT = self.make_nbs(SMB_SETUP_RES_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup requests (LANMAN)
-SMB_SETUP_LANMAN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_SETUP_LANMAN_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -548,7 +548,7 @@ SMB_SETUP_LANMAN_PKT = self.make_nbs(SMB_SETUP_LANMAN_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup requests (NTLMV1)
-SMB_SETUP_NTLMV1_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_SETUP_NTLMV1_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -570,7 +570,7 @@ SMB_SETUP_NTLMV1_PKT = self.make_nbs(SMB_SETUP_NTLMV1_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup requests (When extended security is being used)
-SMB_SETUP_NTLMV2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_SETUP_NTLMV2_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -591,7 +591,7 @@ SMB_SETUP_NTLMV2_PKT = self.make_nbs(SMB_SETUP_NTLMV2_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup responses (When extended security is being used)
-SMB_SETUP_NTLMV2_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_SETUP_NTLMV2_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -607,7 +607,7 @@ SMB_SETUP_NTLMV2_RES_PKT = self.make_nbs(SMB_SETUP_NTLMV2_RES_HDR_PKT)
 
 
 # A SMB template for SMB Tree Connect requests
-SMB_TREE_CONN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TREE_CONN_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -623,7 +623,7 @@ SMB_TREE_CONN_PKT = self.make_nbs(SMB_TREE_CONN_HDR_PKT)
 
 
 # A SMB template for SMB Tree Connect requests
-SMB_TREE_CONN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TREE_CONN_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',   'AndX',                 0 ],
   [ 'uint8',   'Reserved1',            0 ],
@@ -639,7 +639,7 @@ SMB_TREE_CONN_RES_PKT = self.make_nbs(SMB_TREE_CONN_RES_HDR_PKT)
 
 
 # A SMB template for SMB Tree Disconnect requests
-SMB_TREE_DISCONN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TREE_DISCONN_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'ByteCount',            0 ],
   [ 'string',  'Payload', nil,        '' ]
@@ -650,7 +650,7 @@ SMB_TREE_DISCONN_PKT = self.make_nbs(SMB_TREE_DISCONN_HDR_PKT)
 
 
 # A SMB template for SMB Tree Disconnect requests
-SMB_TREE_DISCONN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TREE_DISCONN_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v', 'ByteCount',            0 ],
   [ 'string',  'Payload', nil,        '' ]
@@ -661,7 +661,7 @@ SMB_TREE_DISCONN_RES_PKT = self.make_nbs(SMB_TREE_DISCONN_RES_HDR_PKT)
 
 
 # A SMB template for SMB Transaction requests
-SMB_TRANS_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TRANS_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'ParamCountTotal',     0 ],
   [ 'uint16v',  'DataCountTotal',      0 ],
@@ -688,7 +688,7 @@ SMB_TRANS_PKT = self.make_nbs(SMB_TRANS_HDR_PKT)
 
 
 # A SMB template for SMB Transaction responses
-SMB_TRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TRANS_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'ParamCountTotal',     0 ],
   [ 'uint16v',  'DataCountTotal',      0 ],
@@ -710,7 +710,7 @@ SMB_TRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 SMB_TRANS_RES_PKT = self.make_nbs(SMB_TRANS_RES_HDR_PKT)
 
 # A SMB template for SMB Transaction2 requests
-SMB_TRANS2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_TRANS2_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'ParamCountTotal',     0 ],
   [ 'uint16v',  'DataCountTotal',      0 ],
@@ -737,7 +737,7 @@ SMB_TRANS2_PKT = self.make_nbs(SMB_TRANS2_HDR_PKT)
 
 
 # A SMB template for SMB NTTransaction requests
-SMB_NTTRANS_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NTTRANS_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'SetupCountMax',       0 ],
   [ 'uint16v',  'Reserved1',           0 ],
@@ -761,7 +761,7 @@ SMB_NTTRANS_PKT = self.make_nbs(SMB_NTTRANS_HDR_PKT)
 
 
 # A SMB template for SMB NTTransaction responses
-SMB_NTTRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NTTRANS_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'Reserved1',           0 ],
   [ 'uint16v',  'Reserved2',           0 ],
@@ -782,7 +782,7 @@ SMB_NTTRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 SMB_NTTRANS_RES_PKT = self.make_nbs(SMB_NTTRANS_RES_HDR_PKT)
 
 # A SMB template for SMB NTTransaction_Secondary requests
-SMB_NTTRANS_SECONDARY_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_NTTRANS_SECONDARY_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'Reserved1',           0 ],
   [ 'uint16v',  'Reserved2',           0 ],
@@ -804,7 +804,7 @@ SMB_NTTRANS_SECONDARY_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 SMB_NTTRANS_SECONDARY_PKT = self.make_nbs(SMB_NTTRANS_SECONDARY_HDR_PKT)
 
 # A SMB template for SMB Create requests
-SMB_CREATE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_CREATE_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -831,7 +831,7 @@ SMB_CREATE_PKT = self.make_nbs(SMB_CREATE_HDR_PKT)
 
 
 # A SMB template for SMB Create responses
-SMB_CREATE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_CREATE_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -864,7 +864,7 @@ SMB_CREATE_RES_PKT = self.make_nbs(SMB_CREATE_RES_HDR_PKT)
 
 
 # A SMB template for SMB Write requests
-SMB_WRITE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_WRITE_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -887,7 +887,7 @@ SMB_WRITE_PKT = self.make_nbs(SMB_WRITE_HDR_PKT)
 
 
 # A SMB template for SMB Write responses
-SMB_WRITE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_WRITE_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -905,7 +905,7 @@ SMB_WRITE_RES_PKT = self.make_nbs(SMB_WRITE_RES_HDR_PKT)
 
 
 # A SMB template for SMB OPEN requests
-SMB_OPEN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_OPEN_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -928,7 +928,7 @@ SMB_OPEN_PKT = self.make_nbs(SMB_OPEN_HDR_PKT)
 
 
 # A SMB template for SMB OPEN responses
-SMB_OPEN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_OPEN_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -952,7 +952,7 @@ SMB_OPEN_RES_PKT = self.make_nbs(SMB_OPEN_RES_HDR_PKT)
 
 
 # A SMB template for SMB Close requests
-SMB_CLOSE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_CLOSE_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'FileID',              0 ],
   [ 'uint32v',  'LastWrite',           0 ],
@@ -965,7 +965,7 @@ SMB_CLOSE_PKT = self.make_nbs(SMB_CLOSE_HDR_PKT)
 
 
 # A SMB template for SMB Close responses
-SMB_CLOSE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_CLOSE_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'ByteCount',           0 ],
   [ 'string',   'Payload', nil,       '' ]
@@ -976,7 +976,7 @@ SMB_CLOSE_RES_PKT = self.make_nbs(SMB_CLOSE_RES_HDR_PKT)
 
 
 # A SMB template for SMB Delete requests
-SMB_DELETE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_DELETE_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'SearchAttribute',     0 ],
   [ 'uint16v',  'ByteCount',           0 ],
@@ -989,7 +989,7 @@ SMB_DELETE_PKT = self.make_nbs(SMB_DELETE_HDR_PKT)
 
 
 # A SMB template for SMB Delete responses
-SMB_DELETE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_DELETE_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'ByteCount',           0 ],
   [ 'string',   'Payload', nil,       '' ]
@@ -1001,7 +1001,7 @@ SMB_DELETE_RES_PKT = self.make_nbs(SMB_DELETE_RES_HDR_PKT)
 
 
 # A SMB template for SMB Read requests
-SMB_READ_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_READ_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -1022,7 +1022,7 @@ SMB_READ_PKT = self.make_nbs(SMB_READ_HDR_PKT)
 
 
 # A SMB template for SMB Read responses
-SMB_READ_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_READ_RES_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint8',    'AndX',                0 ],
   [ 'uint8',    'Reserved1',           0 ],
@@ -1045,7 +1045,7 @@ SMB_READ_RES_PKT = self.make_nbs(SMB_READ_RES_HDR_PKT)
 
 
 # A SMB template for SMB Search requests
-SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+SMB_SEARCH_HDR_PKT = RaptorIO::Support::Struct2::CStructTemplate.new(
   [ 'template', 'SMB',                 SMB_HDR ],
   [ 'uint16v',  'MaxCount',            0 ],
   [ 'uint16v',  'Attributes',          0 ],

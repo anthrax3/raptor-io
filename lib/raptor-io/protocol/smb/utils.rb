@@ -1,13 +1,13 @@
 # -*- coding: binary -*-
-require 'rex/text'
-require 'rex/proto/smb/constants'
+require 'raptor-io/support/text'
+require 'raptor-io/protocol/smb/constants'
 
-module Rex
-module Proto
+module RaptorIO
+module Protocol
 module SMB
 class Utils
 
-CONST = Rex::Proto::SMB::Constants
+CONST = RaptorIO::Protocol::SMB::Constants
 
   # Creates an access mask for use with the CLIENT.open() call based on a string
   def self.open_mode_to_access(str)
