@@ -70,6 +70,17 @@ class RaptorIO::Socket::TCP < RaptorIO::Socket
     end
   end
 
+  # XXX GHETTO copy-pasta from Rex
+  def timed_read(maxlen, wait)
+    if wait && wait > 0
+      Timeout.timeout(wait) do
+        read(maxlen)
+      end
+    else
+      read(maxlen)
+    end
+  end
+
   # Read exactly `maxlen` bytes from the {#socket}. If fewer than
   # `maxlen` bytes are available for reading, wait until enough data
   # is sent.

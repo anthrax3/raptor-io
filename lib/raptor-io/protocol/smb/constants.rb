@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 module RaptorIO
-module Proto
+module Protocol
 module SMB
 class Constants
 

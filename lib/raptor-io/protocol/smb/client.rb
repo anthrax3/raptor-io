@@ -4,16 +4,16 @@ module Protocol
 module SMB
 class Client
 
-require 'raptor-io/text'
-require 'raptor-io/struct2'
+require 'raptor-io/support/text'
+require 'raptor-io/support/struct2'
 require 'raptor-io/protocol/smb/constants'
-require 'raptor-io/protocol/smb/exceptions'
-require 'raptor-io/protocol/smb/evasions'
-require 'raptor-io/protocol/smb/utils'
 require 'raptor-io/protocol/smb/crypt'
+require 'raptor-io/protocol/smb/evasions'
+require 'raptor-io/protocol/smb/exceptions'
+require 'raptor-io/protocol/smb/utils'
 require 'raptor-io/protocol/ntlm/crypt'
-require 'raptor-io/protocol/ntlm/constants'
 require 'raptor-io/protocol/ntlm/utils'
+require 'net/ntlm'
 
 
 # Some short-hand class aliases
@@ -22,8 +22,7 @@ CRYPT = RaptorIO::Protocol::SMB::Crypt
 UTILS = RaptorIO::Protocol::SMB::Utils
 XCEPT = RaptorIO::Protocol::SMB::Exceptions
 EVADE = RaptorIO::Protocol::SMB::Evasions
-NTLM_CRYPT = RaptorIO::Protocol::NTLM::Crypt
-NTLM_CONST = RaptorIO::Protocol::NTLM::Constants
+NTLM_CRYPT = RaptorIO::Protocol::NTLM
 NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
 
   def initialize(socket)
@@ -59,7 +58,7 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
     self.signing_key      = ''
     self.require_signing  = false
 
-    #Misc
+    # Misc
     self.spnopt = {}
 
   end
@@ -127,13 +126,13 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
     begin
       # Just send the packet and return
       if (size == 0 or size >= data.length)
-        return self.socket.put(data)
+        return self.socket.write(data)
       end
 
       # Break the packet up into chunks and wait between them
       ret = 0
       while ( (chunk = data.slice!(0, size)).length > 0 )
-        ret = self.socket.put(chunk)
+        ret = self.socket.write(chunk)
         if (wait > 0)
           ::IO.select(nil, nil, nil, wait)
         end
@@ -211,48 +210,34 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
 
     begin
       case pkt['Payload']['SMB'].v['Command']
-
-        when CONST::SMB_COM_NEGOTIATE
-          res = smb_parse_negotiate(pkt, data)
-
-        when CONST::SMB_COM_SESSION_SETUP_ANDX
-          res = smb_parse_session_setup(pkt, data)
-
-        when CONST::SMB_COM_TREE_CONNECT_ANDX
-          res = smb_parse_tree_connect(pkt, data)
-
-        when CONST::SMB_COM_TREE_DISCONNECT
-          res = smb_parse_tree_disconnect(pkt, data)
-
-        when CONST::SMB_COM_NT_CREATE_ANDX
-          res = smb_parse_create(pkt, data)
-
-        when CONST::SMB_COM_TRANSACTION, CONST::SMB_COM_TRANSACTION2
-          res = smb_parse_trans(pkt, data)
-
-        when CONST::SMB_COM_NT_TRANSACT
-          res = smb_parse_nttrans(pkt, data)
-
-        when CONST::SMB_COM_NT_TRANSACT_SECONDARY
-          res = smb_parse_nttrans(pkt, data)
-
-        when CONST::SMB_COM_OPEN_ANDX
-          res = smb_parse_open(pkt, data)
-
-        when CONST::SMB_COM_WRITE_ANDX
-          res = smb_parse_write(pkt, data)
-
-        when CONST::SMB_COM_READ_ANDX
-          res = smb_parse_read(pkt, data)
-
-        when CONST::SMB_COM_CLOSE
-          res = smb_parse_close(pkt, data)
-
-        when CONST::SMB_COM_DELETE
-          res = smb_parse_delete(pkt, data)
-
-        else
-          raise XCEPT::InvalidCommand
+      when CONST::SMB_COM_NEGOTIATE
+        res = smb_parse_negotiate(pkt, data)
+      when CONST::SMB_COM_SESSION_SETUP_ANDX
+        res = smb_parse_session_setup(pkt, data)
+      when CONST::SMB_COM_TREE_CONNECT_ANDX
+        res = smb_parse_tree_connect(pkt, data)
+      when CONST::SMB_COM_TREE_DISCONNECT
+        res = smb_parse_tree_disconnect(pkt, data)
+      when CONST::SMB_COM_NT_CREATE_ANDX
+        res = smb_parse_create(pkt, data)
+      when CONST::SMB_COM_TRANSACTION, CONST::SMB_COM_TRANSACTION2
+        res = smb_parse_trans(pkt, data)
+      when CONST::SMB_COM_NT_TRANSACT
+        res = smb_parse_nttrans(pkt, data)
+      when CONST::SMB_COM_NT_TRANSACT_SECONDARY
+        res = smb_parse_nttrans(pkt, data)
+      when CONST::SMB_COM_OPEN_ANDX
+        res = smb_parse_open(pkt, data)
+      when CONST::SMB_COM_WRITE_ANDX
+        res = smb_parse_write(pkt, data)
+      when CONST::SMB_COM_READ_ANDX
+        res = smb_parse_read(pkt, data)
+      when CONST::SMB_COM_CLOSE
+        res = smb_parse_close(pkt, data)
+      when CONST::SMB_COM_DELETE
+        res = smb_parse_delete(pkt, data)
+      else
+        raise XCEPT::InvalidCommand
       end
 
       if (ignore_errors == false and pkt['Payload']['SMB'].v['ErrorClass'] != 0)
@@ -568,7 +553,7 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
 
     #set require_signing
     if (ack['Payload'].v['SecurityMode'] & 0x08 != 0)
-      self.require_signing	= true
+      self.require_signing = true
     end
 
     # Set the challenge key
@@ -817,12 +802,12 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
   def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
 
     ntlm_options = {
-        :signing 		=> self.require_signing,
-        :usentlm2_session 	=> self.usentlm2_session,
-        :use_ntlmv2 		=> self.use_ntlmv2,
-        :send_lm 		=> self.send_lm,
-        :send_ntlm		=> self.send_ntlm,
-        :use_lanman_key		=> self.use_lanman_key
+        :signing   => self.require_signing,
+        :usentlm2_session  => self.usentlm2_session,
+        :use_ntlmv2   => self.use_ntlmv2,
+        :send_lm   => self.send_lm,
+        :send_ntlm  => self.send_ntlm,
+        :use_lanman_key  => self.use_lanman_key
         }
 
     ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
@@ -896,15 +881,15 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
     blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(blob)
     self.challenge_key = blob_data[:challenge_key]
     server_ntlmssp_flags = blob_data[:server_ntlmssp_flags] #else should raise an error
-    #netbios name
+    # netbios name
     self.default_name =  blob_data[:default_name] || ''
-    #netbios domain
+    # netbios domain
     self.default_domain = blob_data[:default_domain] || ''
-    #dns name
+    # dns name
     self.dns_host_name =  blob_data[:dns_host_name] || ''
-    #dns domain
+    # dns domain
     self.dns_domain_name =  blob_data[:dns_domain_name] || ''
-    #Client time
+    # Client time
     chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
 
 
@@ -1914,19 +1899,19 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
         break if info_buff.length != 70
 
         info = info_buff.unpack(
-          'V'+	# Next Entry Offset
-          'V'+	# File Index
-          'VV'+	# Time Create
-          'VV'+	# Time Last Access
-          'VV'+	# Time Last Write
-          'VV'+	# Time Change
-          'VV'+	# End of File
-          'VV'+	# Allocation Size
-          'V'+	# File Attributes
-          'V'+	# File Name Length
-          'V'+	# Extended Attr List Length
-          'C'+	# Short File Name Length
-          'C' 	# Reserved
+          'V'+ # Next Entry Offset
+          'V'+ # File Index
+          'VV'+ # Time Create
+          'VV'+ # Time Last Access
+          'VV'+ # Time Last Write
+          'VV'+ # Time Change
+          'VV'+ # End of File
+          'VV'+ # Allocation Size
+          'V'+ # File Attributes
+          'V'+ # File Name Length
+          'V'+ # Extended Attr List Length
+          'C'+ # Short File Name Length
+          'C'  # Reserved
         )
 
         name = resp_data[didx + 70 + 24, info[15]]
@@ -2035,28 +2020,28 @@ NTLM_UTILS = RaptorIO::Protocol::NTLM::Utils
   end
 
 # public read/write methods
-  attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
-  attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
+  attr_accessor :native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
+  attr_accessor :verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
   attr_accessor :system_time, :system_zone
   attr_accessor :spnopt
 
 # public read methods
-  attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
-  attr_reader		:default_domain, :default_name, :auth_user, :auth_user_id
-  attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
-  attr_reader		:dns_host_name, :dns_domain_name
-  attr_reader		:security_mode, :server_guid
-  attr_reader		:sequence_counter,:signing_key, :require_signing
+  attr_reader  :dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
+  attr_reader  :default_domain, :default_name, :auth_user, :auth_user_id
+  attr_reader  :multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
+  attr_reader  :dns_host_name, :dns_domain_name
+  attr_reader  :security_mode, :server_guid
+  attr_reader  :sequence_counter,:signing_key, :require_signing
 
 # private write methods
-  attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
-  attr_writer		:default_domain, :default_name, :auth_user, :auth_user_id
-  attr_writer		:dns_host_name, :dns_domain_name
-  attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
-  attr_writer		:security_mode, :server_guid
-  attr_writer		:sequence_counter,:signing_key, :require_signing
+  attr_writer  :dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
+  attr_writer  :default_domain, :default_name, :auth_user, :auth_user_id
+  attr_writer  :dns_host_name, :dns_domain_name
+  attr_writer  :multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
+  attr_writer  :security_mode, :server_guid
+  attr_writer  :sequence_counter,:signing_key, :require_signing
 
-  attr_accessor	:socket
+  attr_accessor :socket
 
 end
 end
